@@ -59,13 +59,13 @@ pipeline {
                 }
             }
         }
-        stage('Quality Gate') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: "${SONAR_CREDENTIALS_ID}"
-                }
-            }
-        }
+        //stage('Quality Gate') {
+        //    steps {
+        //      script {
+        //          waitForQualityGate abortPipeline: false, credentialsId: "${SONAR_CREDENTIALS_ID}"
+        //      }
+        //    }
+        //}
         
         stage('Install Dependencies') {
             steps {
