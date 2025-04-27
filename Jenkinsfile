@@ -1,19 +1,19 @@
 pipeline {
     agent any
-    
+
     parameters {
         string(name: 'MAJOR_VERSION', defaultValue: '1', description: 'Major version for the Docker image tag (e.g., 1 for v1.x)')
     }
-    
+
     tools {
         jdk 'jdk17'
         nodejs 'node16'
     }
-    
+
     environment {
         SCANNER_HOME = tool 'sonarqube-scanner'
         TRIVY_HOME = '/usr/bin'
-        REPO_URL = 'https://github.com/daisy981997/youtube-clone-CICD.git' 
+        REPO_URL = 'https://github.com/daisy981997/youtube-clone-CICD.git'
         REPO_BRANCH = 'main'
         DOCKER_IMAGE_NAME = 'daisy981997/cicdlab'
         SONAR_PROJECT_NAME = 'youtube-cicd'
@@ -25,13 +25,13 @@ pipeline {
         DOCKER_TOOL_NAME = 'docker'
         TRIVY_FS_REPORT = 'trivyfs.txt'
         TRIVY_IMAGE_REPORT = 'trivyimage.txt'
-        K8S_NAMESPACE = 'default'  
+        K8S_NAMESPACE = 'default'
         APP_NAME = 'youtube-clone'
         // AWS_ACCESS_KEY_ID = credentials('aws-access-key')
         // AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
         // AWS_DEFAULT_REGION = 'ap-southeast-1'
     }
-    
+
     stages {
         stage('Clean Workspace') {
             steps {
@@ -66,7 +66,7 @@ pipeline {
         //      }
         //    }
         //}
-        
+
         stage('Install Dependencies') {
             steps {
                 script {
@@ -124,7 +124,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('TRIVY') {
             steps {
                 script {
@@ -138,33 +138,33 @@ pipeline {
             }
         }
 
-       // stage('Deploy to Kubernetes') {
-         //       steps {
-           //         withCredentials([[
-             //           $class: 'AmazonWebServicesCredentialsBinding', 
-               //         credentialsId: 'aws-secret' // AWS credentials from Jenkins
-                 //   ]]) {
-                   //     script {
-                     //       dir('Kubernetes') {
-                       //         withKubeConfig(
-                         //           credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
-                           //         serverUrl: '', // Optional if kubeconfig is valid
-                             //       namespace: "${K8S_NAMESPACE}"
-                               // ) {
-                                 //   // Optional: print version to verify AWS credentials are working
-                                   // sh 'kubectl version'
-                                    // Update image tag in deployment file (optional)
-                                    //sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
-                                    // Deploy
-                                    //sh 'kubectl apply -f deployment.yml'
-                                    //sh 'kubectl apply -f service.yml'
-                            //    }
-                            //}
-                        //}
-                    //}
-               // }
-            //}
-        //}   
+      stage('Deploy to Kubernetes') {
+                steps {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-secret' // AWS credentials from Jenkins
+                   ]]) {
+                        script {
+                            dir('Kubernetes') {
+                                withKubeConfig(
+                                    credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
+                                    serverUrl: '', // Optional if kubeconfig is valid
+                                    namespace: "${K8S_NAMESPACE}"
+                                ) {
+                                     Optional: print version to verify AWS credentials are working
+                                    sh 'kubectl version'
+                                     Update image tag in deployment file (optional)
+                                    sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
+                                     Deploy
+                                    sh 'kubectl apply -f deployment.yml'
+                                    sh 'kubectl apply -f service.yml'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
 
@@ -175,7 +175,7 @@ pipeline {
             body: "Project: ${env.JOB_NAME}<br/>" +
                 "Build Number: ${env.BUILD_NUMBER}<br/>" +
                 "URL: ${env.BUILD_URL}<br/>",
-            to: 'htuthtutsandimyint8997@gmail.com',                              
+            to: 'htuthtutsandimyint8997@gmail.com',
             attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
         }
     }
