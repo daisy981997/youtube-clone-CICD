@@ -30,6 +30,7 @@ pipeline {
     }
 
     stages {
+
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -133,21 +134,21 @@ pipeline {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-secret' // AWS credentials from Jenkins
+                    credentialsId: 'aws-secret'
                 ]]) {
                     script {
                         dir('Kubernetes') {
                             withKubeConfig(
                                 credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
-                                serverUrl: '', // Optional if kubeconfig is valid
+                                serverUrl: '', // Optional if kubeconfig has server
                                 namespace: "${K8S_NAMESPACE}"
                             ) {
-                                // Optional: print version to verify AWS credentials are working
                                 sh 'kubectl version'
-                                // Update image tag in deployment file
+                                // Optional: print version to verify AWS credentials are working
                                 sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
-                                // Deploy
+                                // Update image tag in deployment file (optional)
                                 sh 'kubectl apply -f deployment.yml'
+                                // Deploy
                                 sh 'kubectl apply -f service.yml'
                             }
                         }
@@ -159,12 +160,14 @@ pipeline {
 
     post {
         always {
-            emailext(
+            emailext (
                 attachLog: true,
                 subject: "'${currentBuild.result}'",
-                body: """<p>Project: ${env.JOB_NAME}</p>
-                         <p>Build Number: ${env.BUILD_NUMBER}</p>
-                         <p>URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                body: """
+                    Project: ${env.JOB_NAME}<br/>
+                    Build Number: ${env.BUILD_NUMBER}<br/>
+                    URL: ${env.BUILD_URL}<br/>
+                """,
                 to: 'htuthtutsandimyint8997@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
             )
