@@ -15,7 +15,7 @@ pipeline {
         TRIVY_HOME = '/usr/bin'
         REPO_URL = 'https://github.com/daisy981997/youtube-clone-CICD.git'
         REPO_BRANCH = 'main'
-        DOCKER_IMAGE_NAME = 'daisy981997/cicdlab'
+        DOCKER_IMAGE_NAME = 'cicdlab'
         SONAR_PROJECT_NAME = 'youtube-cicd'
         SONAR_PROJECT_KEY = 'youtube-cicd'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
@@ -138,46 +138,46 @@ pipeline {
             }
         }
 
-      stage('Deploy to Kubernetes') {
-                steps {
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-secret' // AWS credentials from Jenkins
-                   ]]) {
-                        script {
-                            dir('Kubernetes') {
-                                withKubeConfig(
-                                    credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
-                                    serverUrl: '', // Optional if kubeconfig is valid
-                                    namespace: "${K8S_NAMESPACE}"
-                                ) {
-                                     Optional: print version to verify AWS credentials are working
-                                    sh 'kubectl version'
-                                     Update image tag in deployment file (optional)
-                                    sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
-                                     Deploy
-                                    sh 'kubectl apply -f deployment.yml'
-                                    sh 'kubectl apply -f service.yml'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-    post {
-     always {
-        emailext attachLog: true,
-            subject: "'${currentBuild.result}'",
-            body: "Project: ${env.JOB_NAME}<br/>" +
-                "Build Number: ${env.BUILD_NUMBER}<br/>" +
-                "URL: ${env.BUILD_URL}<br/>",
-            to: 'htuthtutsandimyint8997@gmail.com',
-            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-        }
-    }
+     stage('Deploy to Kubernetes') {
+               steps {
+                   withCredentials([[
+                       $class: 'AmazonWebServicesCredentialsBinding',
+                       credentialsId: 'aws-secret' // AWS credentials from Jenkins
+                  ]]) {
+                       script {
+                           dir('Kubernetes') {
+                               withKubeConfig(
+                                   credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
+                                   serverUrl: '', // Optional if kubeconfig is valid
+                                   namespace: "${K8S_NAMESPACE}"
+                               ) {
+                                    Optional: print version to verify AWS credentials are working
+                                   sh 'kubectl version'
+                                    Update image tag in deployment file (optional)
+                                   sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
+                                    Deploy
+                                   sh 'kubectl apply -f deployment.yml'
+                                   sh 'kubectl apply -f service.yml'
+                               }
+                           }
+                       }
+                   }
+               }
+           }
+       }
+ 
+ 
+ 
+   post {
+    always {
+       emailext attachLog: true,
+           subject: "'${currentBuild.result}'",
+           body: "Project: ${env.JOB_NAME}<br/>" +
+               "Build Number: ${env.BUILD_NUMBER}<br/>" +
+               "URL: ${env.BUILD_URL}<br/>",
+           to: 'htuthtutsandimyint8997@gmail.com',
+           attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+       }
+   }
 
 }
