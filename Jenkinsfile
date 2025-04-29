@@ -130,31 +130,31 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-secret'
-                ]]) {
-                    script {
-                        dir('Kubernetes') {
-                            withKubeConfig(
-                                credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
-                                serverUrl: '', // Optional if kubeconfig has server
-                                namespace: "${K8S_NAMESPACE}"
-                            ) {
-                                sh 'kubectl version'
-                                // Optional: print version to verify AWS credentials are working
-                                sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
-                                // Update image tag in deployment file (optional)
-                                sh 'kubectl apply -f deployment.yml'
-                                // Deploy
-                                sh 'kubectl apply -f service.yml'
-                            }
-                        }
-                    }
-                }
-            }
+ //   stage('Deploy to Kubernetes') {
+ //       steps {
+ //           withCredentials([[
+ //               $class: 'AmazonWebServicesCredentialsBinding',
+ //               credentialsId: 'aws-secret'
+ //           ]]) {
+ //               script {
+ //                   dir('Kubernetes') {
+ //                       withKubeConfig(
+ //                           credentialsId: "${KUBERNETES_CREDENTIALS_ID}",
+ //                           serverUrl: '', // Optional if kubeconfig has server
+ //                           namespace: "${K8S_NAMESPACE}"
+ //                       ) {
+ //                           sh 'kubectl version'
+ //                           // Optional: print version to verify AWS credentials are working
+ //                           sh "sed -i 's|image: daisy981997/cicdlab:.*|image: daisy981997/cicdlab:${env.IMAGE_TAG}|' deployment.yml"
+ //                           // Update image tag in deployment file (optional)
+ //                           sh 'kubectl apply -f deployment.yml'
+ //                           // Deploy
+ //                           sh 'kubectl apply -f service.yml'
+ //                       }
+ //                   }
+ //               }
+ //           }
+ //       }
         }
     }
 
